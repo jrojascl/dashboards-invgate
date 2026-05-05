@@ -2,7 +2,6 @@ services:
 
   extractor:
     build: ./extractor
-    container_name: invgate_extractor
     restart: unless-stopped
     environment:
       INVGATE_URL: "${INVGATE_URL}"
@@ -18,7 +17,6 @@ services:
 
   api:
     build: ./api
-    container_name: invgate_api
     restart: unless-stopped
     environment:
       DB_PATH: "/data/invgate.db"
@@ -31,8 +29,9 @@ services:
 
   nginx:
     build: ./nginx
-    container_name: invgate_nginx
     restart: unless-stopped
+    expose:
+      - "80"
     ports:
       - "${DASHBOARD_PORT:-8080}:80"
     networks:

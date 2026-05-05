@@ -1,7 +1,7 @@
 # InvGate Dashboard
 
 Dashboard de tickets para InvGate Service Management.
-Stack: Python extractor + SQLite + Flask API + Nginx + Docker Compose.
+Stack: Python extractor + SQLite + Flask API + Nginx + Docker Compose, preparado para desplegarse en Dokploy.
 
 ## Estructura
 
@@ -24,7 +24,21 @@ invgate-dashboard/
         └── index.html    <- dashboard
 ```
 
-## Deploy
+## Deploy en Dokploy
+
+1. Crear una app de tipo **Docker Compose** en Dokploy.
+2. Conectar el repositorio:
+   `https://github.com/YulianZan/invgate-dashboards.git`
+3. Configurar el compose path:
+   `invgate-dashboard/docker-compose.yml`
+4. En la pestaña **Environment**, cargar las variables de `.env.example` y completar:
+   `INVGATE_URL`, `INVGATE_USER`, `INVGATE_PASS`, `DASHBOARD_PORT`, `MAX_WORKERS`, `CRON_SCHEDULE`.
+5. Deploy.
+
+Para acceder con dominio desde Dokploy, apuntar el dominio al servicio `nginx` en el puerto interno `80`.
+Si no se configura dominio, el dashboard queda publicado en el puerto definido por `DASHBOARD_PORT` en el servidor.
+
+## Deploy local
 
 ```bash
 # 1. Clonar / copiar el proyecto
