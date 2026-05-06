@@ -15,9 +15,13 @@ app     = Flask(__name__)
 
 
 def get_con():
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, timeout=30)
     con.row_factory = sqlite3.Row
     return con
+
+
+def unavailable(message):
+    return jsonify({"error": message}), 503
 
 
 def load_lookups(con):
@@ -46,24 +50,41 @@ def calc_resolution_hours(created_at, solved_at, closed_at):
 @app.route("/api/metrics")
 def metrics():
     if not os.path.exists(DB_PATH):
-        return jsonify({"error": "DB no disponible aun, espera la carga inicial"}), 503
+        return unavailable("DB no disponible aun, espera la carga inicial")
 
-    con = get_con()
-    lkp = load_lookups(con)
+    con = None
+    try:
+        con = get_con()
+        lkp = load_lookups(con)
 
-    # -- Status snapshot (conteo real desde API, no solo lo que esta en DB) --
-    row = con.execute("SELECT value FROM meta WHERE key='status_snapshot'").fetchone()
-    by_status = json.loads(row["value"]) if row else {}
+        # -- Status snapshot (conteo real desde API, no solo lo que esta en DB) --
+        row = con.execute("SELECT value FROM meta WHERE key='status_snapshot'").fetchone()
+        by_status = json.loads(row["value"]) if row else {}
 
-    # -- Leer todos los tickets --
-    tickets = con.execute("""
-        SELECT id, status_id, priority_id, type_id, category_id,
-               assigned_id, assigned_group_id,
-               created_at, solved_at, closed_at, last_update,
-               sla_resolution, sla_first_reply, rating,
-               sentiment_initial, sentiment_current
-        FROM tickets
-    """).fetchall()
+        # -- Leer todos los tickets --
+        tickets = con.execute("""
+            SELECT id, status_id, priority_id, type_id, category_id,
+                   assigned_id, assigned_group_id,
+                   created_at, solved_at, closed_at, last_update,
+                   sla_resolution, sla_first_reply, rating,
+                   sentiment_initial, sentiment_current
+            FROM tickets
+        """).fetchall()
+
+        meta_row = con.execute("SELECT value FROM meta WHERE key='last_run_ts'").fetchone()
+        last_run = None
+        if meta_row:
+            try:
+                last_run = datetime.fromtimestamp(float(meta_row["value"]),
+                                                  tz=timezone.utc).isoformat()
+            except Exception:
+                pass
+    except sqlite3.OperationalError as e:
+        app.logger.warning("SQLite no disponible: %s", e)
+        return unavailable("DB no disponible temporalmente, reintenta en unos segundos")
+    finally:
+        if con:
+            con.close()
 
     # -- Agregar --
     by_priority   = defaultdict(int)
@@ -111,18 +132,6 @@ def metrics():
             sentiment_dist[sent] += 1
 
     avg_res = round(sum(res_times) / len(res_times), 1) if res_times else 0
-
-    # Metadata
-    meta_row = con.execute("SELECT value FROM meta WHERE key='last_run_ts'").fetchone()
-    last_run = None
-    if meta_row:
-        try:
-            last_run = datetime.fromtimestamp(float(meta_row["value"]),
-                                              tz=timezone.utc).isoformat()
-        except Exception:
-            pass
-
-    con.close()
 
     return jsonify({
         "generated_at":          datetime.now(tz=timezone.utc).isoformat(),

@@ -24,7 +24,8 @@ services:
     environment:
       DB_PATH: "/data/invgate.db"
     volumes:
-      - db_data:/data:ro
+      # SQLite en WAL necesita acceso al directorio para archivos -wal/-shm.
+      - db_data:/data
     networks:
       - internal
     depends_on:
