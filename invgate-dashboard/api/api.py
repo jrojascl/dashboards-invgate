@@ -191,7 +191,7 @@ def summarize(tickets, period_tickets, start, end):
     closed_in_period = sum(1 for t in tickets if in_range(t["closed_at"], start, end))
     solved_in_period = sum(1 for t in tickets if in_range(t["solved_at"], start, end))
     updated_in_period = sum(1 for t in tickets if in_range(t["last_update"], start, end))
-    open_now = sum(1 for t in tickets if not t["closed_at"])
+    open_now = sum(1 for t in tickets if not t["closed_at"] and not t["solved_at"])
 
     sla_ok = sla_breach = sla_unknown = 0
     res_times = []

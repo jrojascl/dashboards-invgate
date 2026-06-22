@@ -292,18 +292,34 @@ def find_delta(con, all_ids, last_run_ts, force_full):
         print(f"  Modo COMPLETO: {len(all_ids)} tickets")
         return set(all_ids)
 
-    # IDs que ya tenemos en DB con su last_update
-    rows = con.execute("SELECT id, last_update FROM tickets").fetchall()
-    cached = {row[0]: row[1] for row in rows}
+    rows = con.execute("SELECT id, last_update, closed_at, solved_at FROM tickets").fetchall()
+    cached      = {row[0]: row[1] for row in rows}
+    # Tickets sin fecha de cierre NI solución → aún abiertos según la DB
+    open_in_db  = {row[0] for row in rows if row[2] is None and row[3] is None}
+
+    all_ids_set = set(all_ids)
 
     new_ids     = {i for i in all_ids if i not in cached}
+    # Nota: cached[i] es el last_update que guardamos la última vez que bajamos
+    # ese ticket. La comparación sólo detecta cambios si el ticket fue bajado
+    # en la corrida anterior. Por eso sumamos open_stale abajo.
     updated_ids = {i for i in all_ids if i in cached and
                    (cached[i] is None or cached[i] > last_run_ts)}
 
-    delta = new_ids | updated_ids
+    # Re-descargar todos los tickets abiertos que siguen en InvGate.
+    # Esto es lo que detecta los cierres/resoluciones que el incremental
+    # normal no captura (porque cached[i] suele ser más viejo que last_run_ts).
+    open_stale  = open_in_db & all_ids_set
+
+    # Tickets que estaban abiertos en DB pero desaparecieron de todos los
+    # buckets de incidents.by.status → probablemente archivados/cerrados.
+    vanished    = open_in_db - all_ids_set
+
+    delta = new_ids | updated_ids | open_stale | vanished
     print(f"  Modo INCREMENTAL:")
     print(f"    En sistema : {len(all_ids)} | En DB: {len(cached)}")
-    print(f"    Nuevos     : {len(new_ids)} | Modificados: {len(updated_ids)}")
+    print(f"    Nuevos     : {len(new_ids)} | Modificados (last_update): {len(updated_ids)}")
+    print(f"    Abiertos a refrescar: {len(open_stale)} | Desaparecidos: {len(vanished)}")
     print(f"    A descargar: {len(delta)}")
     return delta
 

@@ -6,26 +6,26 @@
 <title>BDO - Dashboard ITSM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
-    --bg: #eef2f7;
-    --panel: #ffffff;
-    --panel-soft: #f8fafc;
-    --panel-strong: #e5edf6;
-    --text: #172033;
-    --muted: #64748b;
-    --border: #d7e0ea;
-    --blue: #2563eb;
-    --teal: #0f766e;
-    --green: #15803d;
-    --amber: #b7791f;
-    --red: #b91c1c;
-    --purple: #7c3aed;
-    --coral: #c2410c;
-    --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    --bg:           #0f172a;
+    --panel:        #1e293b;
+    --panel-soft:   #1a2640;
+    --panel-strong: #263348;
+    --text:         #f1f5f9;
+    --muted:        #64748b;
+    --border:       #334155;
+    --blue:         #60a5fa;
+    --teal:         #2dd4bf;
+    --green:        #4ade80;
+    --amber:        #fbbf24;
+    --red:          #f87171;
+    --purple:       #a78bfa;
+    --coral:        #fb923c;
+    --shadow:       0 4px 32px rgba(0,0,0,.55);
   }
 
   * { box-sizing: border-box; }
@@ -60,11 +60,12 @@
   .brand {
     color: var(--blue);
     font-family: 'DM Mono', monospace;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: .12em;
+    letter-spacing: .14em;
     text-transform: uppercase;
     margin-bottom: 8px;
+    opacity: .85;
   }
 
   h1 {
@@ -73,15 +74,15 @@
     font-size: 38px;
     line-height: 1.05;
     font-weight: 700;
-    letter-spacing: 0;
+    letter-spacing: -.01em;
   }
 
   .meta {
     display: grid;
-    gap: 7px;
+    gap: 6px;
     color: var(--muted);
     font-family: 'DM Mono', monospace;
-    font-size: 14px;
+    font-size: 13px;
     text-align: right;
   }
 
@@ -91,7 +92,7 @@
     gap: 0;
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 14px;
     box-shadow: var(--shadow);
     margin-bottom: 18px;
@@ -106,48 +107,47 @@
   }
 
   .periods { display: flex; flex-wrap: wrap; gap: 8px; }
+
   .period-btn, .tool-btn, .clear-btn {
     border: 1px solid var(--border);
     background: var(--panel-soft);
-    color: var(--text);
-    border-radius: 7px;
-    padding: 11px 16px;
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 10px 16px;
     font-weight: 700;
+    font-size: 15px;
     transition: background .15s, border-color .15s, color .15s;
   }
 
   .period-btn.active {
     background: var(--blue);
     border-color: var(--blue);
-    color: #fff;
+    color: #0f172a;
   }
 
   .tool-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-  .tool-btn:hover, .clear-btn:hover, .period-btn:hover { border-color: var(--blue); }
-  .tool-btn.primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .tool-btn:hover, .clear-btn:hover { border-color: var(--blue); color: var(--text); }
+  .period-btn:hover:not(.active) { border-color: var(--blue); color: var(--text); }
+  .tool-btn.primary { background: var(--blue); color: #0f172a; border-color: var(--blue); font-weight: 700; }
+  .tool-btn.primary:hover { background: #93c5fd; }
 
   .select-wrap { display: flex; align-items: center; gap: 10px; }
-  label { color: var(--muted); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; }
-  select {
-    min-width: 300px;
-    max-width: 520px;
+  label { color: var(--muted); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; }
+
+  select, .email-input {
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--panel-soft);
     color: var(--text);
-    border-radius: 7px;
-    padding: 11px 14px;
+    border-radius: 8px;
+    padding: 10px 14px;
     font-weight: 600;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .15s;
   }
-  .email-input {
-    min-width: 260px;
-    max-width: 360px;
-    border: 1px solid var(--border);
-    background: #fff;
-    color: var(--text);
-    border-radius: 7px;
-    padding: 11px 14px;
-    font-weight: 600;
-  }
+  select { min-width: 280px; max-width: 480px; }
+  .email-input { min-width: 240px; max-width: 340px; }
+  select:focus, .email-input:focus { border-color: var(--blue); }
 
   .active-filter {
     display: none;
@@ -156,11 +156,12 @@
     margin: 0 0 18px;
     color: var(--teal);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
   }
   .active-filter.visible { display: flex; }
 
   .dashboard { display: grid; gap: 18px; }
+
   .kpis {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -170,33 +171,57 @@
   .kpi, .panel {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: var(--shadow);
   }
 
-  .kpi { padding: 20px 20px 18px; min-height: 136px; }
+  .kpi {
+    padding: 22px 22px 18px;
+    min-height: 152px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Accent bar izquierda en cada KPI */
+  .kpi::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 16px; bottom: 16px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--muted);
+    opacity: .5;
+  }
+  .kpi.blue::before   { background: var(--blue);   opacity: 1; }
+  .kpi.green::before  { background: var(--green);  opacity: 1; }
+  .kpi.amber::before  { background: var(--amber);  opacity: 1; }
+  .kpi.red::before    { background: var(--red);    opacity: 1; }
+  .kpi.teal::before   { background: var(--teal);   opacity: 1; }
+  .kpi.purple::before { background: var(--purple); opacity: 1; }
+
   .kpi-label {
     color: var(--muted);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: .08em;
+    letter-spacing: .1em;
     text-transform: uppercase;
     margin-bottom: 14px;
   }
   .kpi-value {
     color: var(--text);
     font-family: 'DM Mono', monospace;
-    font-size: 42px;
+    font-size: 56px;
     line-height: 1;
     font-weight: 500;
     overflow-wrap: anywhere;
   }
-  .kpi-sub { margin-top: 10px; color: var(--muted); font-size: 15px; font-weight: 600; }
-  .kpi.blue .kpi-value { color: var(--blue); }
-  .kpi.green .kpi-value { color: var(--green); }
-  .kpi.amber .kpi-value { color: var(--amber); }
-  .kpi.red .kpi-value { color: var(--red); }
-  .kpi.teal .kpi-value { color: var(--teal); }
+  .kpi-sub { margin-top: 10px; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .kpi.blue .kpi-value   { color: var(--blue);   }
+  .kpi.green .kpi-value  { color: var(--green);  }
+  .kpi.amber .kpi-value  { color: var(--amber);  }
+  .kpi.red .kpi-value    { color: var(--red);    }
+  .kpi.teal .kpi-value   { color: var(--teal);   }
+  .kpi.purple .kpi-value { color: var(--purple); }
 
   .grid {
     display: grid;
@@ -204,13 +229,13 @@
     gap: 18px;
   }
 
-  .panel { padding: 22px; min-height: 300px; }
-  .span-3 { grid-column: span 3; }
-  .span-4 { grid-column: span 4; }
-  .span-5 { grid-column: span 5; }
-  .span-6 { grid-column: span 6; }
-  .span-7 { grid-column: span 7; }
-  .span-8 { grid-column: span 8; }
+  .panel { padding: 22px; min-height: 300px; position: relative; }
+  .span-3  { grid-column: span 3; }
+  .span-4  { grid-column: span 4; }
+  .span-5  { grid-column: span 5; }
+  .span-6  { grid-column: span 6; }
+  .span-7  { grid-column: span 7; }
+  .span-8  { grid-column: span 8; }
   .span-12 { grid-column: span 12; }
 
   .panel-head {
@@ -218,28 +243,31 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
   .panel-title {
     margin: 0;
     color: var(--text);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    letter-spacing: 0;
+    letter-spacing: -.01em;
   }
-  .panel-note { color: var(--muted); font-size: 14px; font-weight: 700; }
-  .chart-wrap { position: relative; width: 100%; height: 320px; }
-  .chart-wrap.short { height: 270px; }
-  .chart-wrap.tall { height: 430px; }
+  .panel-note { color: var(--muted); font-size: 13px; font-weight: 700; }
 
-  .agent-table { width: 100%; border-collapse: collapse; font-size: 17px; }
+  .chart-wrap         { width: 100%; height: 340px; }
+  .chart-wrap.short   { height: 300px; }
+  .chart-wrap.tall    { height: 460px; }
+
+  /* Tabla de agentes */
+  .agent-table { width: 100%; border-collapse: collapse; font-size: 16px; }
   .agent-table tr { border-bottom: 1px solid var(--border); }
   .agent-table tr:last-child { border-bottom: none; }
-  .agent-table td { padding: 12px 0; vertical-align: middle; }
-  .agent-table td:last-child { text-align: right; font-family: 'DM Mono', monospace; font-size: 16px; color: var(--muted); }
-  .bar-bg { margin-top: 8px; height: 7px; background: var(--panel-strong); border-radius: 999px; overflow: hidden; }
-  .bar-fill { height: 100%; background: var(--blue); border-radius: 999px; }
+  .agent-table td { padding: 11px 0; vertical-align: middle; }
+  .agent-table td:last-child { text-align: right; font-family: 'DM Mono', monospace; font-size: 15px; color: var(--muted); }
+  .bar-bg   { margin-top: 7px; height: 6px; background: var(--panel-strong); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--blue); border-radius: 999px; transition: width .5s ease; }
 
+  /* Estado de carga / error */
   .state {
     min-height: 420px;
     display: grid;
@@ -251,7 +279,7 @@
   .state-inner { display: grid; gap: 14px; justify-items: center; }
   .state code {
     max-width: 760px;
-    background: #fff;
+    background: var(--panel-strong);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--red);
@@ -259,8 +287,8 @@
     white-space: normal;
   }
   .spinner {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border: 3px solid var(--border);
     border-top-color: var(--blue);
     border-radius: 999px;
@@ -270,11 +298,11 @@
 
   .exporting .toolbar, .exporting .active-filter, .exporting .tool-actions { box-shadow: none; }
 
-  /* BDO branding */
+  /* Branding */
   .brand-header { display: flex; align-items: center; gap: 20px; }
-  .brand-logo { height: 44px; width: auto; display: block; }
+  .brand-logo { height: 40px; width: auto; display: block; filter: brightness(1.1); }
 
-  /* Date range row */
+  /* Rango custom */
   .date-range-row {
     display: none;
     align-items: center;
@@ -287,24 +315,21 @@
   .date-range-row.visible { display: flex; }
   .date-input {
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--panel-soft);
     color: var(--text);
-    border-radius: 7px;
+    border-radius: 8px;
     padding: 10px 12px;
     font: inherit;
     font-weight: 600;
+    font-size: 15px;
   }
 
-  /* Edit mode */
-  .kpi { position: relative; }
-  .panel { position: relative; }
+  /* Modo edición */
   .editable { outline: 2px dashed var(--blue); outline-offset: 3px; }
   .hide-panel-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 26px;
-    height: 26px;
+    top: 8px; right: 8px;
+    width: 26px; height: 26px;
     border-radius: 50%;
     background: var(--red);
     color: #fff;
@@ -319,9 +344,8 @@
     padding: 0;
     line-height: 1;
   }
-  .tool-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .tool-btn.active { background: var(--blue); border-color: var(--blue); color: #0f172a; }
 
-  /* Edit bar */
   .edit-bar {
     display: none;
     align-items: center;
@@ -349,7 +373,7 @@
     gap: 8px;
     min-height: 38px;
     color: var(--text);
-    background: #fff;
+    background: var(--panel-soft);
     border: 1px solid var(--border);
     border-radius: 7px;
     padding: 8px 10px;
@@ -358,23 +382,23 @@
     text-transform: none;
     letter-spacing: 0;
   }
-  .field-toggle input { width: 16px; height: 16px; }
+  .field-toggle input { width: 16px; height: 16px; accent-color: var(--blue); }
   .view-name-input {
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--panel-soft);
     color: var(--text);
     border-radius: 7px;
     padding: 10px 12px;
     font: inherit;
     font-weight: 600;
     width: 200px;
+    font-size: 15px;
   }
 
   @media (max-width: 1280px) {
     .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 6; }
   }
-
   @media (max-width: 860px) {
     body { font-size: 16px; }
     .shell { padding: 18px; }
@@ -386,8 +410,8 @@
     .select-wrap { align-items: stretch; flex-direction: column; }
     .kpis { grid-template-columns: 1fr; }
     .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-12 { grid-column: span 12; }
-    .kpi-value { font-size: 36px; }
-    h1 { font-size: 32px; }
+    .kpi-value { font-size: 44px; }
+    h1 { font-size: 30px; }
   }
 </style>
 </head>
@@ -395,9 +419,8 @@
 <div class="shell" id="capture-root">
   <header class="topbar">
     <div class="brand-header">
-      <img class="brand-logo" src="https://cdn.bdo.global/images/bdo_logo/1.0.0/bdo_logo_color.png" alt="BDO" crossorigin="anonymous">
       <div>
-        <div class="brand">Service Management · ITSM</div>
+        <div class="brand">BDO · Service Management · ITSM</div>
         <h1>Dashboard de tickets</h1>
       </div>
     </div>
@@ -462,63 +485,81 @@
 </div>
 
 <script>
+// ── Constantes ──────────────────────────────────────────────────────────────
 const PERIODS = [
-  { id: 'daily', label: 'Diario' },
-  { id: 'weekly', label: 'Semanal' },
-  { id: 'monthly', label: 'Mensual' },
-  { id: 'prev_month', label: 'Mes Anterior' },
-  { id: 'historical', label: 'Historico' },
-  { id: 'custom', label: 'Rango' },
+  { id: 'daily',      label: 'Diario'        },
+  { id: 'weekly',     label: 'Semanal'       },
+  { id: 'monthly',    label: 'Mensual'       },
+  { id: 'prev_month', label: 'Mes Anterior'  },
+  { id: 'historical', label: 'Historico'     },
+  { id: 'custom',     label: 'Rango'         },
 ];
 
 const PANEL_DEFS = [
-  { id: 'kpi-created', label: 'Creados' },
-  { id: 'kpi-closed', label: 'Cerrados' },
-  { id: 'kpi-solved', label: 'Solucionados' },
-  { id: 'kpi-open', label: 'Abiertos ahora' },
-  { id: 'kpi-sla', label: 'SLA breach' },
+  { id: 'kpi-created',    label: 'Creados'          },
+  { id: 'kpi-closed',     label: 'Cerrados'         },
+  { id: 'kpi-solved',     label: 'Solucionados'     },
+  { id: 'kpi-open',       label: 'Abiertos ahora'   },
+  { id: 'kpi-sla',        label: 'SLA breach'       },
   { id: 'kpi-resolution', label: 'Resolucion prom.' },
-  { id: 'panel-trend', label: 'Tendencia' },
-  { id: 'panel-sla', label: 'SLA' },
-  { id: 'panel-area', label: 'Tickets por area' },
-  { id: 'panel-status', label: 'Tickets por estado' },
-  { id: 'panel-priority', label: 'Prioridad' },
-  { id: 'panel-type', label: 'Tipo' },
-  { id: 'panel-resolution', label: 'Resolucion' },
+  { id: 'panel-trend',    label: 'Tendencia'        },
+  { id: 'panel-sla',      label: 'SLA'              },
+  { id: 'panel-area',     label: 'Tickets por area' },
+  { id: 'panel-status',   label: 'Tickets por estado' },
+  { id: 'panel-priority', label: 'Prioridad'        },
+  { id: 'panel-type',     label: 'Tipo'             },
+  { id: 'panel-resolution', label: 'Resolucion'     },
   { id: 'panel-categories', label: 'Top categorias' },
-  { id: 'panel-agents', label: 'Carga por agente' },
+  { id: 'panel-agents',   label: 'Carga por agente' },
 ];
 
-const COLORS = {
-  blue: '#2563eb', teal: '#0f766e', green: '#15803d', amber: '#b7791f',
-  red: '#b91c1c', purple: '#7c3aed', coral: '#c2410c', sky: '#0284c7', slate: '#475569'
+// Paleta para dark mode
+const C = {
+  blue:   '#60a5fa',
+  teal:   '#2dd4bf',
+  green:  '#4ade80',
+  amber:  '#fbbf24',
+  red:    '#f87171',
+  purple: '#a78bfa',
+  coral:  '#fb923c',
+  sky:    '#38bdf8',
+  slate:  '#94a3b8',
 };
-const SERIES = [COLORS.blue, COLORS.teal, COLORS.amber, COLORS.purple, COLORS.coral, COLORS.green, COLORS.red, COLORS.sky, COLORS.slate];
+const SERIES_COLORS = [C.blue, C.teal, C.amber, C.purple, C.coral, C.green, C.red, C.sky, C.slate];
 
-const state = { period: 'daily', areaId: '', areaName: '', areas: [], lastData: null, exporting: false, dateFrom: '', dateTo: '', hiddenPanels: new Set(), savedViews: [], activeView: null, editMode: false, userEmail: '' };
+// ECharts tooltip / axis estilo compartido
+const TT = {
+  backgroundColor: '#0f172a',
+  borderColor:     '#334155',
+  borderWidth:     1,
+  padding:         [10, 14],
+  textStyle:       { color: '#f1f5f9', fontSize: 15, fontWeight: '600' },
+  extraCssText:    'box-shadow:0 8px 32px rgba(0,0,0,.6);border-radius:8px;',
+};
+const AXIS_LABEL = { color: '#64748b', fontSize: 14, fontWeight: 'bold' };
+const SPLIT_LINE = { lineStyle: { color: '#1e293b' } };
+
+function grad(dir, c1, c2) {
+  const coords = dir === 'h' ? [0,0,1,0] : [0,0,0,1];
+  return new echarts.graphic.LinearGradient(...coords,
+    [{ offset: 0, color: c1 }, { offset: 1, color: c2 }]
+  );
+}
+
+// ── Estado global ────────────────────────────────────────────────────────────
+const state = {
+  period: 'daily', areaId: '', areaName: '', areas: [],
+  lastData: null, exporting: false, dateFrom: '', dateTo: '',
+  hiddenPanels: new Set(), savedViews: [], activeView: null,
+  editMode: false, userEmail: '',
+};
 let chartInstances = {};
 
-Chart.defaults.color = '#64748b';
-Chart.defaults.borderColor = '#d7e0ea';
-Chart.defaults.font.family = "'DM Sans', Arial, sans-serif";
-Chart.defaults.font.size = 15;
-
-function fmt(value) {
-  const n = Number(value || 0);
-  return n.toLocaleString('es-CL');
-}
-
-function pct(value) {
-  return value === null || value === undefined ? '-' : `${value > 0 ? '+' : ''}${value}%`;
-}
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
-}
-
-function validEmail(value) {
-  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(value || '').trim());
-}
+// ── Formateo ─────────────────────────────────────────────────────────────────
+function fmt(v)  { return Number(v || 0).toLocaleString('es-CL'); }
+function pct(v)  { return v === null || v === undefined ? '-' : `${v > 0 ? '+' : ''}${v}%`; }
+function esc(v)  { return String(v ?? '').replace(/[&<>'"]/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[ch])); }
+function validEmail(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v||'').trim()); }
 
 function periodLabel() {
   if (state.period === 'custom' && state.dateFrom && state.dateTo)
@@ -532,73 +573,30 @@ function comparisonText(key) {
   return `${pct(c[key])} vs periodo anterior`;
 }
 
+// ── ECharts helpers ──────────────────────────────────────────────────────────
 function destroyCharts() {
-  Object.values(chartInstances).forEach(chart => chart.destroy());
+  Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.dispose(); });
   chartInstances = {};
 }
 
-function makeChart(id, config) {
+function makeChart(id, option) {
   const el = document.getElementById(id);
   if (!el) return null;
-  chartInstances[id] = new Chart(el, config);
-  return chartInstances[id];
+  const chart = echarts.init(el, null, { renderer: 'canvas' });
+  chart.setOption(option);
+  chartInstances[id] = chart;
+  return chart;
 }
 
-function chartOptions(extra = {}) {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: state.exporting ? false : { duration: 350 },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#172033',
-        titleFont: { size: 15, weight: '700' },
-        bodyFont: { size: 15, weight: '600' },
-        padding: 12,
-        callbacks: {
-          label: ctx => ` ${ctx.dataset.label || 'Tickets'}: ${fmt(ctx.parsed.y ?? ctx.parsed.x ?? ctx.parsed)}`
-        }
-      }
-    },
-    scales: {
-      x: { ticks: { font: { size: 14, weight: '600' }, maxRotation: 35 }, grid: { display: false } },
-      y: { beginAtZero: true, ticks: { precision: 0, font: { size: 14, weight: '600' } } }
-    },
-    ...extra
-  };
-}
+window.addEventListener('resize', () => {
+  Object.values(chartInstances).forEach(c => { if (c && !c.isDisposed()) c.resize(); });
+});
 
-function donutOptions() {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '64%',
-    animation: state.exporting ? false : { duration: 350 },
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 14, padding: 16, font: { size: 15, weight: '700' } } },
-      tooltip: {
-        backgroundColor: '#172033',
-        titleFont: { size: 15, weight: '700' },
-        bodyFont: { size: 15, weight: '600' },
-        padding: 12,
-        callbacks: {
-          label: ctx => {
-            const total = ctx.dataset.data.reduce((sum, n) => sum + Number(n || 0), 0);
-            const part = total ? Math.round(Number(ctx.parsed || 0) / total * 100) : 0;
-            return ` ${ctx.label}: ${fmt(ctx.parsed)} (${part}%)`;
-          }
-        }
-      }
-    }
-  };
-}
-
+// ── Botones de período ───────────────────────────────────────────────────────
 function renderPeriodButtons() {
-  const wrap = document.getElementById('periods');
-  wrap.innerHTML = PERIODS.map(period => `
-    <button type="button" class="period-btn ${period.id === state.period ? 'active' : ''}" onclick="setPeriod('${period.id}')">
-      ${period.label}
+  document.getElementById('periods').innerHTML = PERIODS.map(p => `
+    <button type="button" class="period-btn ${p.id === state.period ? 'active' : ''}" onclick="setPeriod('${p.id}')">
+      ${p.label}
     </button>
   `).join('');
 }
@@ -611,35 +609,35 @@ function setPeriod(period) {
   if (period === 'custom') {
     const today = new Date().toISOString().slice(0, 10);
     const fromEl = document.getElementById('date-from');
-    const toEl = document.getElementById('date-to');
+    const toEl   = document.getElementById('date-to');
     if (fromEl && !fromEl.value) fromEl.value = today.slice(0, 7) + '-01';
-    if (toEl && !toEl.value) toEl.value = today;
+    if (toEl   && !toEl.value)   toEl.value   = today;
   } else {
     loadData();
   }
 }
 
+// ── Filtro de área ───────────────────────────────────────────────────────────
 function setArea(areaId) {
   state.areaId = areaId || '';
-  const area = state.areas.find(item => item.id === state.areaId);
+  const area = state.areas.find(a => a.id === state.areaId);
   state.areaName = area?.name || '';
-  const select = document.getElementById('area-select');
-  if (select) select.value = state.areaId;
+  const sel = document.getElementById('area-select');
+  if (sel) sel.value = state.areaId;
   loadData();
 }
 
 function updateAreaSelect(areas) {
   state.areas = areas || [];
-  const select = document.getElementById('area-select');
-  const current = state.areaId;
-  select.innerHTML = '<option value="">Todas las areas</option>' + state.areas.map(area => `
-    <option value="${escapeHtml(area.id)}">${escapeHtml(area.name)}</option>
-  `).join('');
-  select.value = current;
+  const sel = document.getElementById('area-select');
+  const cur = state.areaId;
+  sel.innerHTML = '<option value="">Todas las areas</option>' +
+    state.areas.map(a => `<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
+  sel.value = cur;
 }
 
 function updateActiveFilter() {
-  const box = document.getElementById('active-filter');
+  const box  = document.getElementById('active-filter');
   const text = document.getElementById('active-filter-text');
   if (state.areaId && state.areaName) {
     text.textContent = `Filtro activo: ${state.areaName}`;
@@ -649,141 +647,244 @@ function updateActiveFilter() {
   }
 }
 
+// ── Plantillas de componentes ─────────────────────────────────────────────────
 function kpi(id, label, value, sub, tone) {
   if (state.hiddenPanels.has(id)) return '';
-  const hideBtn = state.editMode ? `<button class="hide-panel-btn" onclick="hidePanel('${id}')" title="Ocultar">×</button>` : '';
+  const btn = state.editMode ? `<button class="hide-panel-btn" onclick="hidePanel('${id}')" title="Ocultar">×</button>` : '';
   return `
-    <div class="kpi ${tone || ''} ${state.editMode ? 'editable' : ''}" data-panel="${id}">
-      ${hideBtn}
-      <div class="kpi-label">${escapeHtml(label)}</div>
-      <div class="kpi-value">${escapeHtml(value)}</div>
-      <div class="kpi-sub">${escapeHtml(sub)}</div>
-    </div>
-  `;
+    <div class="kpi ${tone||''} ${state.editMode ? 'editable' : ''}" data-panel="${id}">
+      ${btn}
+      <div class="kpi-label">${esc(label)}</div>
+      <div class="kpi-value">${esc(value)}</div>
+      <div class="kpi-sub">${esc(sub)}</div>
+    </div>`;
 }
 
 function panel(id, title, note, span, body) {
   if (state.hiddenPanels.has(id)) return '';
-  const hideBtn = state.editMode ? `<button class="hide-panel-btn" onclick="hidePanel('${id}')" title="Ocultar">×</button>` : '';
+  const btn = state.editMode ? `<button class="hide-panel-btn" onclick="hidePanel('${id}')" title="Ocultar">×</button>` : '';
   return `
     <section class="panel ${span} ${state.editMode ? 'editable' : ''}" data-panel="${id}">
       <div class="panel-head">
-        <h2 class="panel-title">${escapeHtml(title)}</h2>
-        <span class="panel-note">${escapeHtml(note || '')}</span>
-        ${hideBtn}
+        <h2 class="panel-title">${esc(title)}</h2>
+        <span class="panel-note">${esc(note||'')}</span>
+        ${btn}
       </div>
       ${body}
-    </section>
-  `;
+    </section>`;
 }
 
+// ── Render principal ─────────────────────────────────────────────────────────
 function renderDashboard(data) {
   destroyCharts();
   state.lastData = data;
   updateAreaSelect(data.available_areas || []);
   updateActiveFilter();
 
-  const m = data.metrics || {};
-  const s = data.summary || {};
-  const period = periodLabel().toLowerCase();
+  const m    = data.metrics  || {};
+  const s    = data.summary  || {};
   const last = data.last_extraction ? new Date(data.last_extraction).toLocaleString('es-CL') : '-';
-  const generated = data.generated_at ? new Date(data.generated_at).toLocaleString('es-CL') : '-';
-  document.getElementById('meta-last-extraction').textContent = `Ultima extraccion: ${last}`;
-  document.getElementById('meta-total').textContent = `${fmt(data.total_tickets_in_db)} tickets en DB`;
-  document.getElementById('meta-generated').textContent = `Vista generada: ${generated}`;
+  const gen  = data.generated_at    ? new Date(data.generated_at).toLocaleString('es-CL')    : '-';
 
-  const slaTotal = Number(s.sla_ok || 0) + Number(s.sla_breach || 0);
-  const slaPct = slaTotal ? Math.round(Number(s.sla_ok || 0) / slaTotal * 100) : 0;
-  const areaText = state.areaName || 'Todas las areas';
+  document.getElementById('meta-last-extraction').textContent = `Ultima extraccion: ${last}`;
+  document.getElementById('meta-total').textContent           = `${fmt(data.total_tickets_in_db)} tickets en DB`;
+  document.getElementById('meta-generated').textContent       = `Vista generada: ${gen}`;
+
+  const slaTotal = Number(s.sla_ok||0) + Number(s.sla_breach||0);
+  const slaPct   = slaTotal ? Math.round(Number(s.sla_ok||0) / slaTotal * 100) : 0;
+  const period   = periodLabel().toLowerCase();
 
   document.getElementById('root').innerHTML = `
     <section class="dashboard" id="dashboard">
       <div class="kpis">
-        ${kpi('kpi-created', `Creados ${period}`, fmt(s.created_in_period), comparisonText('created_delta_pct'), 'blue')}
-        ${kpi('kpi-closed', `Cerrados ${period}`, fmt(s.closed_in_period), comparisonText('closed_delta_pct'), 'green')}
-        ${kpi('kpi-solved', `Solucionados ${period}`, fmt(s.solved_in_period), comparisonText('solved_delta_pct'), 'teal')}
-        ${kpi('kpi-open', 'Abiertos ahora', fmt(s.open_now), areaText, 'amber')}
-        ${kpi('kpi-sla', 'SLA breach', fmt(s.sla_breach), comparisonText('sla_breach_delta_pct'), 'red')}
-        ${kpi('kpi-resolution', 'Resolucion prom.', `${fmt(s.avg_resolution_hours)}h`, comparisonText('avg_resolution_delta_pct'), 'purple')}
+        ${kpi('kpi-created',    `Creados ${period}`,      fmt(s.created_in_period),    comparisonText('created_delta_pct'),    'blue'  )}
+        ${kpi('kpi-closed',     `Cerrados ${period}`,     fmt(s.closed_in_period),     comparisonText('closed_delta_pct'),     'green' )}
+        ${kpi('kpi-solved',     `Solucionados ${period}`, fmt(s.solved_in_period),     comparisonText('solved_delta_pct'),     'teal'  )}
+        ${kpi('kpi-open',       'Abiertos ahora',         fmt(s.open_now),             state.areaName || 'Todas las areas',   'amber' )}
+        ${kpi('kpi-sla',        'SLA breach',             fmt(s.sla_breach),           comparisonText('sla_breach_delta_pct'), 'red'  )}
+        ${kpi('kpi-resolution', 'Resolucion prom.',       `${fmt(s.avg_resolution_hours)}h`, comparisonText('avg_resolution_delta_pct'), 'purple')}
       </div>
 
       <div class="grid">
-        ${panel('panel-trend', 'Tendencia', periodLabel(), 'span-8', '<div class="chart-wrap"><canvas id="c-trend"></canvas></div>')}
-        ${panel('panel-sla', 'SLA', `${slaPct}% cumplido`, 'span-4', '<div class="chart-wrap"><canvas id="c-sla"></canvas></div>')}
-        ${panel('panel-area', 'Tickets por area', 'Click para filtrar', 'span-6', '<div class="chart-wrap tall"><canvas id="c-area"></canvas></div>')}
-        ${panel('panel-status', 'Tickets por estado', '', 'span-6', '<div class="chart-wrap tall"><canvas id="c-status"></canvas></div>')}
-        ${panel('panel-priority', 'Prioridad', '', 'span-4', '<div class="chart-wrap short"><canvas id="c-priority"></canvas></div>')}
-        ${panel('panel-type', 'Tipo', '', 'span-4', '<div class="chart-wrap short"><canvas id="c-type"></canvas></div>')}
-        ${panel('panel-resolution', 'Resolucion', '', 'span-4', '<div class="chart-wrap short"><canvas id="c-resolution"></canvas></div>')}
-        ${panel('panel-categories', 'Top categorias', '', 'span-7', '<div class="chart-wrap tall"><canvas id="c-category"></canvas></div>')}
-        ${panel('panel-agents', 'Carga por agente', '', 'span-5', '<div id="agent-table-wrap"></div>')}
+        ${panel('panel-trend',      'Tendencia',         periodLabel(),        'span-8', '<div class="chart-wrap" id="c-trend"></div>')}
+        ${panel('panel-sla',        'SLA',               `${slaPct}% cumplido`, 'span-4', '<div class="chart-wrap" id="c-sla"></div>')}
+        ${panel('panel-area',       'Tickets por area',  'Click para filtrar', 'span-6', '<div class="chart-wrap tall" id="c-area"></div>')}
+        ${panel('panel-status',     'Tickets por estado','',                   'span-6', '<div class="chart-wrap tall" id="c-status"></div>')}
+        ${panel('panel-priority',   'Prioridad',         '',                   'span-4', '<div class="chart-wrap short" id="c-priority"></div>')}
+        ${panel('panel-type',       'Tipo',              '',                   'span-4', '<div class="chart-wrap short" id="c-type"></div>')}
+        ${panel('panel-resolution', 'Resolucion',        '',                   'span-4', '<div class="chart-wrap short" id="c-resolution"></div>')}
+        ${panel('panel-categories', 'Top categorias',    '',                   'span-7', '<div class="chart-wrap tall" id="c-category"></div>')}
+        ${panel('panel-agents',     'Carga por agente',  '',                   'span-5', '<div id="agent-table-wrap"></div>')}
       </div>
-    </section>
-  `;
+    </section>`;
 
-  renderCharts(m);
+  renderCharts(m, s);
   renderAgents(m.by_agent || {});
   renderEditPanelList();
 }
 
-function renderCharts(m) {
-  const trendLabels = Object.keys(m.trend || m.monthly_trend || {});
-  const trendValues = Object.values(m.trend || m.monthly_trend || {});
+// ── Gráficos ECharts ─────────────────────────────────────────────────────────
+function renderCharts(m, s) {
+  // Tendencia ─────────────────────────────────────────────────────────────────
+  const tKeys = Object.keys(m.trend || m.monthly_trend || {});
+  const tVals = Object.values(m.trend || m.monthly_trend || {});
   makeChart('c-trend', {
-    type: 'line',
-    data: { labels: trendLabels, datasets: [{ label: 'Tickets', data: trendValues, borderColor: COLORS.blue, backgroundColor: 'rgba(37,99,235,.12)', pointBackgroundColor: COLORS.blue, pointRadius: 5, borderWidth: 3, tension: .32, fill: true }] },
-    options: chartOptions({ scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 14, font: { size: 14, weight: '700' } } }, y: { beginAtZero: true, ticks: { precision: 0, font: { size: 14, weight: '700' } } } } })
+    backgroundColor: 'transparent',
+    grid: { left: 10, right: 20, top: 10, bottom: 10, containLabel: true },
+    xAxis: {
+      type: 'category', data: tKeys, boundaryGap: false,
+      axisLine: { lineStyle: { color: '#334155' } },
+      axisTick: { show: false },
+      axisLabel: { ...AXIS_LABEL, margin: 14 },
+    },
+    yAxis: {
+      type: 'value', splitLine: SPLIT_LINE,
+      axisLabel: AXIS_LABEL,
+    },
+    series: [{
+      type: 'line', data: tVals, smooth: 0.38,
+      symbol: 'circle', symbolSize: 9,
+      lineStyle: { color: C.blue, width: 3 },
+      itemStyle: { color: C.blue, borderColor: '#1e293b', borderWidth: 2 },
+      areaStyle: { color: grad('v', 'rgba(96,165,250,.35)', 'rgba(96,165,250,.03)') },
+      emphasis: { scale: 1.5 },
+    }],
+    tooltip: { ...TT, trigger: 'axis', formatter: arr => `${arr[0].name}: <strong>${fmt(arr[0].value)}</strong>` },
   });
 
+  // SLA donut ─────────────────────────────────────────────────────────────────
+  const slaTotal = Number(s.sla_ok||0) + Number(s.sla_breach||0);
+  const slaPct   = slaTotal ? Math.round(Number(s.sla_ok||0) / slaTotal * 100) : 0;
   makeChart('c-sla', {
-    type: 'doughnut',
-    data: { labels: ['Cumplido', 'Breach', 'Sin SLA'], datasets: [{ data: [m.sla?.ok || 0, m.sla?.breach || 0, m.sla?.unknown || 0], backgroundColor: [COLORS.green, COLORS.red, '#94a3b8'], borderColor: '#fff', borderWidth: 3 }] },
-    options: donutOptions()
+    backgroundColor: 'transparent',
+    legend: { bottom: 4, textStyle: { color: '#94a3b8', fontSize: 14, fontWeight: '700' }, itemGap: 16 },
+    series: [{
+      type: 'pie', radius: ['48%', '72%'], center: ['50%', '44%'],
+      data: [
+        { value: m.sla?.ok      || 0, name: 'Cumplido', itemStyle: { color: C.green  } },
+        { value: m.sla?.breach  || 0, name: 'Breach',   itemStyle: { color: C.red    } },
+        { value: m.sla?.unknown || 0, name: 'Sin SLA',  itemStyle: { color: '#475569'} },
+      ],
+      label: { show: false },
+      labelLine: { show: false },
+      emphasis: { itemStyle: { shadowBlur: 16, shadowColor: 'rgba(0,0,0,.4)' } },
+      itemStyle: { borderColor: '#1e293b', borderWidth: 3, borderRadius: 6 },
+    }],
+    graphic: [{
+      type: 'text', left: 'center', top: '36%',
+      style: { text: `${slaPct}%`, fill: '#f1f5f9', fontSize: 28, fontWeight: '700', fontFamily: 'DM Mono,monospace', textAlign: 'center' },
+    }, {
+      type: 'text', left: 'center', top: '50%',
+      style: { text: 'cumplido', fill: '#64748b', fontSize: 13, fontWeight: '700', fontFamily: 'DM Sans,Arial,sans-serif', textAlign: 'center' },
+    }],
+    tooltip: { ...TT, formatter: p => `${p.name}: <strong>${fmt(p.value)}</strong> (${p.percent?.toFixed(1)}%)` },
   });
 
-  const areaLabels = Object.keys(m.by_area || {});
-  const areaValues = Object.values(m.by_area || {});
-  const areaChart = makeChart('c-area', {
-    type: 'bar',
-    data: { labels: areaLabels, datasets: [{ label: 'Tickets', data: areaValues, backgroundColor: COLORS.teal, borderRadius: 7, borderSkipped: false }] },
-    options: chartOptions({ indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0, font: { size: 14, weight: '700' } } }, y: { ticks: { font: { size: 15, weight: '700' } } } } })
-  });
-  if (areaChart) {
-    areaChart.options.onClick = (_, items) => {
-      if (!items.length) return;
-      const label = areaChart.data.labels[items[0].index];
-      const area = state.areas.find(item => item.name === label);
+  // Areas (horizontal bar, clickable) ────────────────────────────────────────
+  const aKeys = Object.keys(m.by_area || {});
+  const aVals = Object.values(m.by_area || {});
+  const aChart = makeChart('c-area', hBar(aKeys, aVals, grad('h', '#0f766e', '#2dd4bf'), 'Tickets'));
+  if (aChart) {
+    aChart.on('click', params => {
+      const area = state.areas.find(a => a.name === params.name);
       if (area) setArea(area.id);
-    };
-    areaChart.update();
+    });
   }
 
-  makeChart('c-status', barChart(m.by_status || {}, COLORS.blue, true));
-  makeChart('c-priority', donutChart(m.by_priority || {}, [COLORS.green, COLORS.blue, COLORS.amber, COLORS.red, COLORS.purple]));
-  makeChart('c-type', donutChart(m.by_type || {}, [COLORS.blue, COLORS.teal, COLORS.amber, COLORS.purple, COLORS.coral]));
-  makeChart('c-resolution', barChart(m.resolution_buckets || {}, COLORS.purple, false));
-  makeChart('c-category', barChart(m.by_category || {}, COLORS.coral, true));
+  // Status (horizontal bar) ───────────────────────────────────────────────────
+  makeChart('c-status', hBar(
+    Object.keys(m.by_status  || {}),
+    Object.values(m.by_status || {}),
+    grad('h', '#1d4ed8', '#60a5fa'), 'Tickets'
+  ));
+
+  // Prioridad (pie) ───────────────────────────────────────────────────────────
+  makeChart('c-priority', pieChart(m.by_priority || {},
+    [C.green, C.blue, C.amber, C.red, C.purple]));
+
+  // Tipo (pie) ────────────────────────────────────────────────────────────────
+  makeChart('c-type', pieChart(m.by_type || {},
+    [C.blue, C.teal, C.amber, C.purple, C.coral]));
+
+  // Resolución (vertical bar) ─────────────────────────────────────────────────
+  const rKeys = Object.keys(m.resolution_buckets || {});
+  const rVals = Object.values(m.resolution_buckets || {});
+  makeChart('c-resolution', {
+    backgroundColor: 'transparent',
+    grid: { left: 10, right: 10, top: 10, bottom: 10, containLabel: true },
+    xAxis: {
+      type: 'category', data: rKeys,
+      axisLine: { lineStyle: { color: '#334155' } }, axisTick: { show: false },
+      axisLabel: { ...AXIS_LABEL, fontSize: 13 },
+    },
+    yAxis: { type: 'value', splitLine: SPLIT_LINE, axisLabel: AXIS_LABEL },
+    series: [{
+      type: 'bar', data: rVals,
+      itemStyle: { color: grad('v', C.purple, '#4c1d95'), borderRadius: [6,6,0,0] },
+      label: { show: true, position: 'top', color: '#94a3b8', fontSize: 13, fontWeight: '700', formatter: p => fmt(p.value) },
+      emphasis: { itemStyle: { color: grad('v', '#c4b5fd', C.purple) } },
+    }],
+    tooltip: { ...TT, formatter: p => `${p.name}: <strong>${fmt(p.value)}</strong>` },
+  });
+
+  // Categorias (horizontal bar) ───────────────────────────────────────────────
+  makeChart('c-category', hBar(
+    Object.keys(m.by_category  || {}),
+    Object.values(m.by_category || {}),
+    grad('h', '#9a3412', C.coral), 'Tickets'
+  ));
 }
 
-function barChart(values, color, horizontal) {
+// Barra horizontal compartida
+function hBar(labels, values, color, seriesName) {
+  const rev_l = [...labels].reverse();
+  const rev_v = [...values].reverse();
+  const max   = Math.max(...rev_v, 1);
   return {
-    type: 'bar',
-    data: { labels: Object.keys(values), datasets: [{ label: 'Tickets', data: Object.values(values), backgroundColor: color, borderRadius: 7, borderSkipped: false }] },
-    options: chartOptions(horizontal ? { indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0, font: { size: 14, weight: '700' } } }, y: { ticks: { font: { size: 15, weight: '700' } } } } } : {})
+    backgroundColor: 'transparent',
+    grid: { left: 10, right: 64, top: 8, bottom: 8, containLabel: true },
+    xAxis: { type: 'value', splitLine: SPLIT_LINE, axisLabel: AXIS_LABEL, max },
+    yAxis: {
+      type: 'category', data: rev_l,
+      axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { ...AXIS_LABEL, fontSize: 14, width: 180, overflow: 'truncate' },
+    },
+    series: [{
+      type: 'bar', name: seriesName, data: rev_v,
+      itemStyle: { color, borderRadius: [0, 6, 6, 0] },
+      label: { show: true, position: 'right', color: '#64748b', fontSize: 13, fontWeight: '700', formatter: p => fmt(p.value) },
+      emphasis: { itemStyle: { shadowBlur: 12, shadowColor: 'rgba(0,0,0,.4)' } },
+      barMaxWidth: 28,
+    }],
+    tooltip: { ...TT, trigger: 'axis', axisPointer: { type: 'none' },
+      formatter: arr => `${arr[0].name}: <strong>${fmt(arr[0].value)}</strong>` },
   };
 }
 
-function donutChart(values, colors) {
+// Pie/donut compartido
+function pieChart(obj, colors) {
+  const data = Object.entries(obj).map(([name, value], i) => ({
+    name, value, itemStyle: { color: colors[i % colors.length] },
+  }));
   return {
-    type: 'doughnut',
-    data: { labels: Object.keys(values), datasets: [{ data: Object.values(values), backgroundColor: colors, borderColor: '#fff', borderWidth: 3 }] },
-    options: donutOptions()
+    backgroundColor: 'transparent',
+    legend: { bottom: 4, textStyle: { color: '#94a3b8', fontSize: 13, fontWeight: '700' }, itemGap: 12 },
+    series: [{
+      type: 'pie', radius: ['44%', '68%'], center: ['50%', '42%'],
+      data,
+      label: { show: false },
+      labelLine: { show: false },
+      itemStyle: { borderColor: '#1e293b', borderWidth: 3, borderRadius: 5 },
+      emphasis: { itemStyle: { shadowBlur: 16, shadowColor: 'rgba(0,0,0,.4)' } },
+    }],
+    tooltip: { ...TT, formatter: p => `${p.name}: <strong>${fmt(p.value)}</strong> (${p.percent?.toFixed(1)}%)` },
   };
 }
 
+// ── Tabla de agentes ─────────────────────────────────────────────────────────
 function renderAgents(byAgent) {
   const entries = Object.entries(byAgent || {});
-  const max = entries[0]?.[1] || 1;
+  const max  = entries[0]?.[1] || 1;
   const wrap = document.getElementById('agent-table-wrap');
   if (!wrap) return;
   if (!entries.length) {
@@ -793,33 +894,27 @@ function renderAgents(byAgent) {
   wrap.innerHTML = `<table class="agent-table">${entries.map(([name, count]) => `
     <tr>
       <td>
-        <strong>${escapeHtml(name)}</strong>
+        <strong>${esc(name)}</strong>
         <div class="bar-bg"><div class="bar-fill" style="width:${Math.max(4, Math.round(count / max * 100))}%"></div></div>
       </td>
       <td>${fmt(count)}</td>
-    </tr>
-  `).join('')}</table>`;
+    </tr>`).join('')}</table>`;
 }
 
-// ----- Vistas guardadas -----
-const VIEWS_KEY = 'invgate_saved_views';
+// ── Vistas guardadas ─────────────────────────────────────────────────────────
+const VIEWS_KEY     = 'invgate_saved_views';
 const USER_EMAIL_KEY = 'invgate_user_email';
 
-function localViewsKey() {
-  return state.userEmail ? `${VIEWS_KEY}:${state.userEmail}` : VIEWS_KEY;
-}
+function localViewsKey() { return state.userEmail ? `${VIEWS_KEY}:${state.userEmail}` : VIEWS_KEY; }
 
 function normalizeView(raw) {
-  return {
-    name: raw.name,
-    hiddenPanels: raw.hiddenPanels || raw.config?.hiddenPanels || [],
-  };
+  return { name: raw.name, hiddenPanels: raw.hiddenPanels || raw.config?.hiddenPanels || [] };
 }
 
 async function initViews() {
   state.userEmail = (localStorage.getItem(USER_EMAIL_KEY) || '').trim().toLowerCase();
-  const emailInput = document.getElementById('user-email');
-  if (emailInput) emailInput.value = state.userEmail;
+  const emailEl = document.getElementById('user-email');
+  if (emailEl) emailEl.value = state.userEmail;
   await loadViewsForUser();
   renderViewsSelect();
 }
@@ -832,25 +927,24 @@ async function loadViewsForUser() {
       const payload = await res.json();
       state.savedViews = (payload.views || []).map(normalizeView);
       return;
-    } catch (error) {
-      console.warn('No se pudieron cargar vistas remotas, usando respaldo local', error);
-    }
+    } catch (e) { console.warn('Vistas remotas no disponibles', e); }
   }
-  try { state.savedViews = JSON.parse(localStorage.getItem(localViewsKey()) || '[]').map(normalizeView); } catch { state.savedViews = []; }
+  try { state.savedViews = JSON.parse(localStorage.getItem(localViewsKey()) || '[]').map(normalizeView); }
+  catch { state.savedViews = []; }
 }
 
 function renderViewsSelect() {
   const wrap = document.getElementById('views-select-wrap');
-  const sel = document.getElementById('views-select');
+  const sel  = document.getElementById('views-select');
   if (!wrap || !sel) return;
   wrap.style.display = state.savedViews.length > 0 ? 'flex' : 'none';
   sel.innerHTML = '<option value="">Vista por defecto</option>' +
-    state.savedViews.map(v => `<option value="${escapeHtml(v.name)}">${escapeHtml(v.name)}</option>`).join('');
+    state.savedViews.map(v => `<option value="${esc(v.name)}">${esc(v.name)}</option>`).join('');
   sel.value = state.activeView || '';
 }
 
 function loadView(name) {
-  state.activeView = name || null;
+  state.activeView  = name || null;
   const view = state.savedViews.find(v => v.name === name);
   state.hiddenPanels = new Set(view ? view.hiddenPanels : []);
   if (state.lastData) renderDashboard(state.lastData);
@@ -859,22 +953,20 @@ function loadView(name) {
 async function setUserEmail(value) {
   const email = (value || '').trim().toLowerCase();
   if (email && !validEmail(email)) return;
-  state.userEmail = email;
-  localStorage.setItem(USER_EMAIL_KEY, email);
-  state.activeView = null;
+  state.userEmail    = email;
+  state.activeView   = null;
   state.hiddenPanels = new Set();
+  localStorage.setItem(USER_EMAIL_KEY, email);
   await loadViewsForUser();
   renderViewsSelect();
   if (state.lastData) renderDashboard(state.lastData);
 }
 
-function currentViewConfig() {
-  return { hiddenPanels: [...state.hiddenPanels] };
-}
+function currentViewConfig() { return { hiddenPanels: [...state.hiddenPanels] }; }
 
 async function saveCurrentView() {
   const input = document.getElementById('view-name-input');
-  const name = (input?.value || '').trim();
+  const name  = (input?.value || '').trim();
   if (!name) return;
   const entry = { name, ...currentViewConfig() };
   if (state.userEmail && validEmail(state.userEmail)) {
@@ -885,9 +977,8 @@ async function saveCurrentView() {
     });
     await loadViewsForUser();
   } else {
-    const existing = state.savedViews.findIndex(v => v.name === name);
-    if (existing >= 0) state.savedViews[existing] = entry;
-    else state.savedViews.push(entry);
+    const idx = state.savedViews.findIndex(v => v.name === name);
+    if (idx >= 0) state.savedViews[idx] = entry; else state.savedViews.push(entry);
     localStorage.setItem(localViewsKey(), JSON.stringify(state.savedViews));
   }
   state.activeView = name;
@@ -906,7 +997,7 @@ async function deleteCurrentView() {
     state.savedViews = state.savedViews.filter(v => v.name !== name);
     localStorage.setItem(localViewsKey(), JSON.stringify(state.savedViews));
   }
-  state.activeView = null;
+  state.activeView   = null;
   state.hiddenPanels = new Set();
   renderViewsSelect();
   if (state.lastData) renderDashboard(state.lastData);
@@ -923,8 +1014,7 @@ function hidePanel(id) {
 }
 
 function setPanelVisible(id, visible) {
-  if (visible) state.hiddenPanels.delete(id);
-  else state.hiddenPanels.add(id);
+  if (visible) state.hiddenPanels.delete(id); else state.hiddenPanels.add(id);
   if (state.lastData) renderDashboard(state.lastData);
 }
 
@@ -934,9 +1024,8 @@ function renderEditPanelList() {
   wrap.innerHTML = PANEL_DEFS.map(item => `
     <label class="field-toggle">
       <input type="checkbox" ${state.hiddenPanels.has(item.id) ? '' : 'checked'} onchange="setPanelVisible('${item.id}', this.checked)">
-      <span>${escapeHtml(item.label)}</span>
-    </label>
-  `).join('');
+      <span>${esc(item.label)}</span>
+    </label>`).join('');
 }
 
 function toggleEditMode() {
@@ -953,78 +1042,69 @@ function toggleEditMode() {
   renderEditPanelList();
 }
 
-// ----- Rango de fechas custom -----
+// ── Rango custom ─────────────────────────────────────────────────────────────
 function applyCustomRange() {
   const from = document.getElementById('date-from')?.value;
-  const to = document.getElementById('date-to')?.value;
+  const to   = document.getElementById('date-to')?.value;
   if (!from || !to || from > to) return;
   state.dateFrom = from;
-  state.dateTo = to;
+  state.dateTo   = to;
   loadData();
 }
 
+// ── Fetch de datos ───────────────────────────────────────────────────────────
 function buildUrl() {
   const params = new URLSearchParams({ period: state.period });
   if (state.areaId) params.set('area_id', state.areaId);
   if (state.period === 'custom' && state.dateFrom && state.dateTo) {
     params.set('date_from', state.dateFrom);
-    params.set('date_to', state.dateTo);
+    params.set('date_to',   state.dateTo);
   }
   return `/api/metrics?${params.toString()}`;
 }
 
 function loadData() {
   if (state.period === 'custom' && (!state.dateFrom || !state.dateTo)) {
-    renderPeriodButtons();
-    return;
+    renderPeriodButtons(); return;
   }
   renderPeriodButtons();
-  document.getElementById('root').innerHTML = '<div class="state"><div class="state-inner"><div class="spinner"></div><span>Actualizando...</span></div></div>';
+  document.getElementById('root').innerHTML =
+    '<div class="state"><div class="state-inner"><div class="spinner"></div><span>Actualizando...</span></div></div>';
   fetch(buildUrl())
-    .then(response => {
-      if (!response.ok) return response.json().then(err => { throw new Error(err.error || `HTTP ${response.status}`); });
-      return response.json();
-    })
+    .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.error || `HTTP ${r.status}`); }))
     .then(renderDashboard)
-    .catch(error => {
+    .catch(err => {
       document.getElementById('root').innerHTML = `
-        <div class="state">
-          <div class="state-inner">
-            <span>No se pudo cargar el dashboard</span>
-            <code>${escapeHtml(error.message)}</code>
-          </div>
-        </div>`;
+        <div class="state"><div class="state-inner">
+          <span>No se pudo cargar el dashboard</span>
+          <code>${esc(err.message)}</code>
+        </div></div>`;
     });
 }
 
+// ── Export PDF ────────────────────────────────────────────────────────────────
 async function exportPdf() {
   const dashboard = document.getElementById('capture-root');
   if (!dashboard || !state.lastData) return;
   state.exporting = true;
   document.body.classList.add('exporting');
   try {
-    const canvas = await html2canvas(dashboard, { scale: 2, backgroundColor: '#eef2f7', useCORS: true });
+    const canvas = await html2canvas(dashboard, { scale: 2, backgroundColor: '#0f172a', useCORS: true });
     const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const ratio = pageWidth / canvas.width;
-    const sliceHeight = Math.floor(pageHeight / ratio);
-    let sourceY = 0;
-    let page = 0;
-
-    while (sourceY < canvas.height) {
-      const partHeight = Math.min(sliceHeight, canvas.height - sourceY);
-      const pageCanvas = document.createElement('canvas');
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = partHeight;
-      const ctx = pageCanvas.getContext('2d');
-      ctx.drawImage(canvas, 0, sourceY, canvas.width, partHeight, 0, 0, canvas.width, partHeight);
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const ratio = pw / canvas.width;
+    const sliceH = Math.floor(ph / ratio);
+    let srcY = 0, page = 0;
+    while (srcY < canvas.height) {
+      const partH = Math.min(sliceH, canvas.height - srcY);
+      const pc = document.createElement('canvas');
+      pc.width = canvas.width; pc.height = partH;
+      pc.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, partH, 0, 0, canvas.width, partH);
       if (page > 0) pdf.addPage();
-      pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, partHeight * ratio);
-      sourceY += partHeight;
-      page += 1;
+      pdf.addImage(pc.toDataURL('image/png'), 'PNG', 0, 0, pw, partH * ratio);
+      srcY += partH; page++;
     }
-
     pdf.save(`bdo-itsm-dashboard-${state.period}.pdf`);
   } finally {
     document.body.classList.remove('exporting');
@@ -1032,6 +1112,7 @@ async function exportPdf() {
   }
 }
 
+// ── Init ──────────────────────────────────────────────────────────────────────
 initViews();
 renderPeriodButtons();
 loadData();
